@@ -3,6 +3,7 @@
     "name": "deplox/laravel-overseer",
     "type": "library",
     "description": "Laravel application container inspector.",
+    "keywords": ["laravel", "inspector", "introspection", "container", "diagnostics", "debug"],
     "license": "MIT",
     "authors": [
         {
