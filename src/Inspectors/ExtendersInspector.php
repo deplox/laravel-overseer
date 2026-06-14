@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace Deplox\Overseer\Inspectors;
 
+use Deplox\Overseer\Contracts\Inspector;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Arr;
 use ReflectionClass;
 use ReflectionException;
 
-final class ExtendersInspector
+final class ExtendersInspector implements Inspector
 {
     /**
      * @param  \Illuminate\Foundation\Application  $app

@@ -4,15 +4,16 @@ declare(strict_types=1);
 
 namespace Deplox\Overseer\Inspectors;
 
+use Deplox\Overseer\Contracts\Inspector;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Str;
 use Throwable;
 
-final class EnvironmentInspector
+final class EnvironmentInspector implements Inspector
 {
     /**
      * @param  \Illuminate\Foundation\Application  $app
-     * @return array<string>
+     * @return array{php: string, laravel: string, composer: string, database: string}
      */
     public function inspect(Application $app): array
     {
@@ -20,7 +21,7 @@ final class EnvironmentInspector
         $composer = $app->make(\Illuminate\Support\Composer::class);
 
         return [
-            'php' => implode('.', [PHP_MAJOR_VERSION, PHP_MINOR_VERSION, PHP_RELEASE_VERSION]),
+            'php' => PHP_VERSION,
             'laravel' => $app->version(),
             'composer' => $composer->getVersion() ?? '-',
             'database' => $this->databaseVersion($app),
@@ -43,7 +44,8 @@ final class EnvironmentInspector
         }
 
         try {
-            $version = $resolver->select('select version() as version')[0]->{'version'} ?? null;
+            $result = $resolver->connection()->select('select version() as version');
+            $version = $result[0]->version ?? null;
 
             if (is_string($version)) {
                 return Str::before($version, ' (');
@@ -52,6 +54,10 @@ final class EnvironmentInspector
             // Driver doesn't support `select version()` (e.g. sqlite) or DB unreachable.
         }
 
-        return $resolver->getDriverName();
+        try {
+            return $resolver->connection()->getDriverName();
+        } catch (Throwable) {
+            return '-';
+        }
     }
 }

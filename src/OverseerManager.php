@@ -20,46 +20,43 @@ use Illuminate\Support\Collection;
  **/
 final readonly class OverseerManager implements Arrayable
 {
-    /**
-     * @param  \Illuminate\Foundation\Application  $app
-     */
     public function __construct(
         private Application $app,
     ) {}
 
     public function environment(): array
     {
-        return new EnvironmentInspector()->inspect($this->app);
+        return (new EnvironmentInspector)->inspect($this->app);
     }
 
     public function providers(): array
     {
-        return new ProvidersInspector()->inspect($this->app);
+        return (new ProvidersInspector)->inspect($this->app);
     }
 
     public function aliases(): array
     {
-        return new AliasesInspector()->inspect($this->app);
+        return (new AliasesInspector)->inspect($this->app);
     }
 
     public function bindings(): array
     {
-        return new BindingsInspector()->inspect($this->app);
+        return (new BindingsInspector)->inspect($this->app);
     }
 
     public function instances(): array
     {
-        return new InstancesInspector()->inspect($this->app);
+        return (new InstancesInspector)->inspect($this->app);
     }
 
     public function extenders(): array
     {
-        return new ExtendersInspector()->inspect($this->app);
+        return (new ExtendersInspector)->inspect($this->app);
     }
 
     public function router(): array
     {
-        return new RouterInspector()->inspect($this->app);
+        return (new RouterInspector)->inspect($this->app);
     }
 
     public function inspect(): Collection
@@ -67,10 +64,10 @@ final readonly class OverseerManager implements Arrayable
         return new Collection([
             'environment' => $this->environment(),
             'providers' => $this->providers(),
-            'aliases' => collect($this->aliases())->sortKeys(),
-            'bindings' => collect($this->bindings())->sortKeys(),
-            'instances' => collect($this->instances())->sortKeys(),
-            'extenders' => collect($this->extenders())->sortKeys(),
+            'aliases' => collect($this->aliases())->sortKeys()->all(),
+            'bindings' => collect($this->bindings())->sortKeys()->all(),
+            'instances' => collect($this->instances())->sortKeys()->all(),
+            'extenders' => collect($this->extenders())->sortKeys()->all(),
             'router' => $this->router(),
         ]);
     }

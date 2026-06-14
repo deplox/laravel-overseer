@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace Deplox\Overseer\Inspectors;
 
+use Deplox\Overseer\Contracts\Inspector;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Arr;
 
-final class BindingsInspector
+final class BindingsInspector implements Inspector
 {
     /**
      * @param  \Illuminate\Foundation\Application  $app
-     * @return array<string>
+     * @return array<string, array{resolved: bool, singleton: bool}>
      */
     public function inspect(Application $app): array
     {

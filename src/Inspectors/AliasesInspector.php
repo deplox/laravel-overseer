@@ -4,15 +4,16 @@ declare(strict_types=1);
 
 namespace Deplox\Overseer\Inspectors;
 
+use Deplox\Overseer\Contracts\Inspector;
 use Illuminate\Contracts\Foundation\Application;
 use ReflectionClass;
 use ReflectionException;
 
-final class AliasesInspector
+final class AliasesInspector implements Inspector
 {
     /**
      * @param  \Illuminate\Foundation\Application  $app
-     * @return array<string>
+     * @return array<string, string[]>
      */
     public function inspect(Application $app): array
     {

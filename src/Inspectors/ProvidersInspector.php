@@ -4,37 +4,44 @@ declare(strict_types=1);
 
 namespace Deplox\Overseer\Inspectors;
 
+use Deplox\Overseer\Contracts\Inspector;
 use Illuminate\Contracts\Foundation\Application;
 
-final class ProvidersInspector
+final class ProvidersInspector implements Inspector
 {
     /**
      * @param  \Illuminate\Foundation\Application  $app
-     * @return array<string>
+     * @return array<string, array{loaded: bool, deferred: bool, provides: string[]}>
      */
     public function inspect(Application $app): array
     {
-        $registered = array_keys($app->getLoadedProviders());
+        $result = [];
 
-        $unresolved = [...array_diff(array_keys(array_flip($app->getDeferredServices())), $registered)];
+        foreach (array_keys($app->getLoadedProviders()) as $class) {
+            $provider = $app->getProvider($class);
 
-        $services = array_filter($app->getDeferredServices(), fn ($provider): bool => in_array($provider, $unresolved));
-
-        $unresolved = array_fill_keys($unresolved, ['loaded' => false, 'deferred' => true, 'provides' => []]);
-
-        foreach ($services as $binding => $provider) {
-            $unresolved[$provider]['provides'][] = $binding;
+            $result[$class] = [
+                'loaded' => true,
+                'deferred' => $provider->isDeferred(),
+                'provides' => $provider->provides(),
+            ];
         }
 
-        $registered = array_fill_keys($registered, ['loaded' => true, 'deferred' => false, 'provides' => []]);
+        $loadedClasses = array_keys($result);
 
-        foreach (array_keys($registered) as $key) {
-            $provider = $app->getProvider($key);
+        // Group deferred-but-not-yet-loaded providers with the bindings they provide.
+        foreach ($app->getDeferredServices() as $binding => $providerClass) {
+            if (in_array($providerClass, $loadedClasses, true)) {
+                continue;
+            }
 
-            $registered[$key]['deferred'] = $provider->isDeferred();
-            $registered[$key]['provides'] = $provider->provides();
+            if (! isset($result[$providerClass])) {
+                $result[$providerClass] = ['loaded' => false, 'deferred' => true, 'provides' => []];
+            }
+
+            $result[$providerClass]['provides'][] = $binding;
         }
 
-        return array_merge($registered, $unresolved);
+        return $result;
     }
 }

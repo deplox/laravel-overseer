@@ -24,11 +24,16 @@ test('inspect returns a collection with the expected top-level keys', function (
         ]);
 });
 
-test('environment returns PHP and framework version metadata', function (): void {
+test('environment returns expected metadata keys and types', function (): void {
     $env = $this->overseer->environment();
 
-    expect($env)->toBeArray()
-        ->and($env)->not->toBeEmpty();
+    expect($env)
+        ->toBeArray()
+        ->toHaveKeys(['php', 'laravel', 'composer', 'database'])
+        ->and($env['php'])->toBe(PHP_VERSION)
+        ->and($env['laravel'])->toBeString()->not->toBeEmpty()
+        ->and($env['composer'])->toBeString()
+        ->and($env['database'])->toBeString();
 });
 
 test('providers returns a non-empty array of registered service providers', function (): void {
@@ -61,20 +66,29 @@ test('extenders returns container extenders', function (): void {
     expect($extenders)->toBeArray();
 });
 
-test('router returns at least one registered route', function (): void {
+test('router returns routes and middlewares structure', function (): void {
     $this->app['router']->get('/__overseer-probe', fn () => 'ok');
 
-    $routes = $this->overseer->router();
+    $result = $this->overseer->router();
 
-    expect($routes)->toBeArray()->not->toBeEmpty();
+    expect($result)
+        ->toBeArray()
+        ->toHaveKeys(['routes', 'middlewares'])
+        ->and($result['routes'])->not->toBeEmpty();
 });
 
-test('toArray serializes inspect() output to nested arrays', function (): void {
+test('toArray serializes inspect() output to nested plain arrays', function (): void {
     $array = $this->overseer->toArray();
 
-    expect($array)->toBeArray()
-        ->and($array)->toHaveKey('environment')
-        ->and($array)->toHaveKey('router');
+    expect($array)
+        ->toBeArray()
+        ->toHaveKey('environment')
+        ->toHaveKey('router');
+
+    // Verify no nested Collection objects survive serialization.
+    array_walk_recursive($array, function (mixed $value): void {
+        expect($value)->not->toBeInstanceOf(Collection::class);
+    });
 });
 
 test('router inspector replaces closure actions with the string "closure"', function (): void {
@@ -99,4 +113,15 @@ test('router inspector output is JSON-encodable', function (): void {
     $json = json_encode($this->overseer->router(), JSON_THROW_ON_ERROR);
 
     expect($json)->toBeString();
+});
+
+test('uri with dots is not incorrectly nested in router output', function (): void {
+    $this->app['router']->get('/api/v2.1/health', fn () => 'ok');
+
+    $routes = $this->overseer->router()['routes'];
+
+    // Regression: Arr::set previously split "api/v2.1/health" on the dot.
+    // Laravel also appends HEAD to GET routes, so the method key is "GET|HEAD".
+    expect($routes)->toHaveKey('api/v2.1/health');
+    expect($routes['api/v2.1/health'])->toHaveKey('GET|HEAD');
 });
