@@ -28,3 +28,12 @@ test('keys are abstract class or interface names', function (): void {
         expect($abstract)->toBeString()->not->toBeEmpty();
     }
 });
+
+test('the "app" abstract has at least one class alias', function (): void {
+    // abstractAliases maps short service names → array of class-name aliases.
+    // 'app' is always present and points to at least Illuminate\Foundation\Application.
+    $result = (new AliasesInspector)->inspect($this->app);
+
+    expect($result)->toHaveKey('app');
+    expect($result['app'])->toBeArray()->not->toBeEmpty();
+});

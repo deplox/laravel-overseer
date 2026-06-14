@@ -33,3 +33,13 @@ test('returns the string value for a bound string instance', function (): void {
 
     expect($result['__test.string'])->toBe('some-value');
 });
+
+test('returns the debug type for a non-string non-object instance', function (): void {
+    // The `instances` container property is private, so bind via instance() which
+    // accepts mixed values and stores them directly in the instances array.
+    $this->app->instance('__test.int', 42);
+
+    $result = (new InstancesInspector)->inspect($this->app);
+
+    expect($result['__test.int'])->toBe('int');
+});

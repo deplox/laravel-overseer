@@ -125,3 +125,11 @@ test('uri with dots is not incorrectly nested in router output', function (): vo
     expect($routes)->toHaveKey('api/v2.1/health');
     expect($routes['api/v2.1/health'])->toHaveKey('GET|HEAD');
 });
+
+test('route entry includes per-route middleware', function (): void {
+    $this->app['router']->get('/__overseer-mw', fn () => 'ok')->middleware('auth');
+
+    $entry = $this->overseer->router()['routes']['__overseer-mw']['GET|HEAD'];
+
+    expect($entry['middleware'])->toBeArray()->toContain('auth');
+});

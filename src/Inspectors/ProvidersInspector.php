@@ -20,6 +20,10 @@ final class ProvidersInspector implements Inspector
         foreach (array_keys($app->getLoadedProviders()) as $class) {
             $provider = $app->getProvider($class);
 
+            if ($provider === null) {
+                continue;
+            }
+
             $result[$class] = [
                 'loaded' => true,
                 'deferred' => $provider->isDeferred(),

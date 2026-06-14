@@ -33,12 +33,36 @@ test('route entry contains the expected fields', function (): void {
     $entry = $routes['__unit-fields']['GET|HEAD'];
 
     expect($entry)->toHaveKeys([
-        'name', 'method', 'uri', 'action',
+        'name', 'method', 'uri', 'middleware', 'action',
         'fallback', 'defaults', 'wheres',
         'bindingFields', 'lockSeconds', 'waitSeconds', 'withTrashed',
     ]);
     expect($entry['name'])->toBe('unit.fields');
     expect($entry['uri'])->toBe('__unit-fields');
+});
+
+test('route middleware is captured in the route entry', function (): void {
+    $this->app['router']->get('/__unit-mw', fn () => 'ok')->middleware('auth');
+
+    $entry = (new RouterInspector)->inspect($this->app)['routes']['__unit-mw']['GET|HEAD'];
+
+    expect($entry['middleware'])->toBeArray()->toContain('auth');
+});
+
+test('route with no middleware has an empty middleware array', function (): void {
+    $this->app['router']->get('/__unit-nomw', fn () => 'ok');
+
+    $entry = (new RouterInspector)->inspect($this->app)['routes']['__unit-nomw']['GET|HEAD'];
+
+    expect($entry['middleware'])->toBeArray()->toBeEmpty();
+});
+
+test('route accepting all HTTP verbs uses "ANY" as method key', function (): void {
+    $this->app['router']->any('/__unit-any', fn () => 'ok');
+
+    $routes = (new RouterInspector)->inspect($this->app)['routes'];
+
+    expect($routes['__unit-any'])->toHaveKey('ANY');
 });
 
 test('uri containing dots is stored under the full literal key', function (): void {

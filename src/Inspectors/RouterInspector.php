@@ -13,7 +13,7 @@ final class RouterInspector implements Inspector
 {
     /**
      * @param  \Illuminate\Foundation\Application  $app
-     * @return array<string, mixed>
+     * @return array{routes: array<string, array<string, mixed>>, middlewares: array{groups: array<string, array<string>>, aliases: array<string, string>, priority: array<int, string>}}
      */
     public function inspect(Application $app): array
     {
@@ -42,6 +42,7 @@ final class RouterInspector implements Inspector
                 'name' => $route->getName(),
                 'method' => $method,
                 'uri' => $uri,
+                'middleware' => $route->middleware(),
                 'action' => $this->serializeAction($route->getAction()),
                 'fallback' => $route->isFallback,
                 'defaults' => $route->defaults,
