@@ -61,7 +61,7 @@ Each inspector implements `Deplox\Overseer\Contracts\Inspector` and can be used 
 | `BindingsInspector` | `array<class-string, array{resolved: bool, singleton: bool}>` |
 | `InstancesInspector` | `array<string, string>` — abstract → class name or debug type |
 | `ExtendersInspector` | `array<string, int>` — abstract → number of extenders |
-| `RouterInspector` | routes indexed by URI and HTTP method, plus global middleware config |
+| `RouterInspector` | `array{routes: array<string, array<string, mixed>>, middlewares: array{groups: ..., aliases: ..., priority: ...}}` |
 
 ### Sample output
 
@@ -110,15 +110,18 @@ Each inspector implements `Deplox\Overseer\Contracts\Inspector` and can be used 
     'routes' => [
         'api/users' => [
             'GET|HEAD' => [
-                'name'        => 'api.users.index',
-                'method'      => 'GET|HEAD',
-                'uri'         => 'api/users',
-                'middleware'  => ['api', 'auth:sanctum'],
-                'action'      => ['uses' => 'App\Http\Controllers\UserController@index', ...],
-                'fallback'    => false,
-                'defaults'    => [],
-                'wheres'      => [],
-                ...
+                'name'          => 'api.users.index',
+                'method'        => 'GET|HEAD',
+                'uri'           => 'api/users',
+                'middleware'    => ['api', 'auth:sanctum'],
+                'action'        => ['uses' => 'App\Http\Controllers\UserController@index'],
+                'fallback'      => false,
+                'defaults'      => [],
+                'wheres'        => [],
+                'bindingFields' => [],
+                'lockSeconds'   => null,
+                'waitSeconds'   => null,
+                'withTrashed'   => false,
             ],
         ],
     ],
@@ -181,7 +184,8 @@ Bug reports, feature requests, and pull requests are welcome. Please open an iss
 
 ```bash
 composer install
-composer test
+composer test   # Pest test suite
+composer stan   # PHPStan (level 8, Larastan extensions)
 ```
 
 ---
