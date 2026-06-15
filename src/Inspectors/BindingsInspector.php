@@ -11,7 +11,6 @@ use Illuminate\Support\Arr;
 final class BindingsInspector implements Inspector
 {
     /**
-     * @param  \Illuminate\Foundation\Application  $app
      * @return array<string, array{resolved: bool, singleton: bool}>
      */
     public function inspect(Application $app): array

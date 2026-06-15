@@ -12,7 +12,6 @@ use Throwable;
 final class EnvironmentInspector implements Inspector
 {
     /**
-     * @param  \Illuminate\Foundation\Application  $app
      * @return array{php: string, laravel: string, composer: string, database: string}
      */
     public function inspect(Application $app): array

@@ -13,7 +13,6 @@ use ReflectionException;
 final class ExtendersInspector implements Inspector
 {
     /**
-     * @param  \Illuminate\Foundation\Application  $app
      * @return array<string, int>
      */
     public function inspect(Application $app): array

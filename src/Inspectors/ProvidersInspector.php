@@ -10,7 +10,6 @@ use Illuminate\Contracts\Foundation\Application;
 final class ProvidersInspector implements Inspector
 {
     /**
-     * @param  \Illuminate\Foundation\Application  $app
      * @return array<string, array{loaded: bool, deferred: bool, provides: string[]}>
      */
     public function inspect(Application $app): array

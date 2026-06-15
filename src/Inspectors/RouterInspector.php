@@ -12,7 +12,6 @@ use Illuminate\Support\Arr;
 final class RouterInspector implements Inspector
 {
     /**
-     * @param  \Illuminate\Foundation\Application  $app
      * @return array{routes: array<string, array<string, mixed>>, middlewares: array{groups: array<string, array<string>>, aliases: array<string, string>, priority: array<int, string>}}
      */
     public function inspect(Application $app): array
